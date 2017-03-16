@@ -1120,17 +1120,23 @@ fn run(cmd: &mut Command, program: &str) -> Vec<u8> {
             } else {
                 ""
             };
+            let stdout = String::from_utf8(stdout);
             fail(&format!("failed to execute command: {}\nIs `{}` \
-                           not installed?{}",
+                           not installed?{}\nStdout:\n{:?}",
                           e,
                           program,
-                          extra));
+                          extra,
+                          stdout));
         }
-        Err(e) => fail(&format!("failed to execute command: {}", e)),
+        Err(e) => {
+            let stdout = String::from_utf8(stdout);
+            fail(&format!("failed to execute command: {}\nStdout:\n{:?}", e, stdout))
+        },
     };
     println!("{:?}", status);
     if !status.success() {
-        fail(&format!("command did not execute successfully, got: {}", status));
+        let stdout = String::from_utf8(stdout);
+        fail(&format!("command did not execute successfully, got: {}\nStdout:\n{:?}", status, stdout));
     }
     stdout
 }
